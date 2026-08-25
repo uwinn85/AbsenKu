@@ -168,7 +168,7 @@
                   </button>
                 </div>
                 <div class="relative bg-slate-900 rounded-2xl overflow-hidden min-h-[340px] flex items-center justify-center border border-slate-800 shadow-inner">
-                  <div id="reader" class="w-full h-full" :class="{'hidden': !scannerActive}"></div>
+                  <div id="reader" class="w-full h-full transform -scale-x-100" :class="{'hidden': !scannerActive}"></div>
                   <div x-show="!scannerActive" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-6 text-center">
                     <i class="fa-solid fa-video-slash text-5xl mb-3 text-slate-600 animate-pulse"></i>
                     <p class="text-sm font-medium">Kamera scanner nonaktif. Klik tombol "Mulai Kamera" di atas untuk memindai ID/QR Karyawan.</p>
@@ -428,7 +428,7 @@
               <i class="fa-solid fa-gear text-indigo-600"></i>
               <span>Pengaturan Sistem &amp; Perusahaan</span>
             </h3>
-            <p class="text-xs text-slate-500 mt-1">Kelola identitas instansi, preferensi absensi, pilihan kamera, timer selfie, mode suara, serta manajemen data aplikasi.</p>
+            <p class="text-xs text-slate-500 mt-1">Kelola identitas instansi, preferensi absensi, pilihan kamera scan &amp; selfie, timer selfie, mode suara, serta manajemen data aplikasi.</p>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -452,7 +452,7 @@
             <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
               <h4 class="font-bold text-slate-700 text-sm flex items-center space-x-2">
                 <i class="fa-solid fa-camera-retro text-indigo-600"></i>
-                <span>Preferensi Absensi &amp; Selfie</span>
+                <span>Preferensi Absensi &amp; Kamera</span>
               </h4>
               <div class="flex items-center justify-between py-2">
                 <div>
@@ -462,6 +462,13 @@
                 <button @click="settingsForm.selfieRequired = !settingsForm.selfieRequired" :class="settingsForm.selfieRequired ? 'bg-emerald-600 text-white' : 'bg-slate-300 text-slate-700'" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all">
                   <span x-text="settingsForm.selfieRequired ? 'AKTIF' : 'NONAKTIF'"></span>
                 </button>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Posisi Kamera QR Code Scanner</label>
+                <select x-model="settingsForm.scannerFacing" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="environment">Kamera Belakang (Environment / Utama)</option>
+                  <option value="user">Kamera Depan (User / Selfie)</option>
+                </select>
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">Posisi Kamera Selfie Utama</label>
@@ -539,7 +546,7 @@
         </div>
 
         <div class="relative aspect-[3/4] bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 flex items-center justify-center">
-          <video id="selfieVideo" autoplay playsinline class="w-full h-full object-cover" x-show="!selfieModal.capturedImage"></video>
+          <video id="selfieVideo" autoplay playsinline class="w-full h-full object-cover transform -scale-x-100" x-show="!selfieModal.capturedImage"></video>
           <canvas id="selfieCanvas" class="hidden"></canvas>
           
           <!-- Countdown Overlay -->
@@ -548,7 +555,7 @@
           </div>
 
           <div x-show="selfieModal.capturedImage" class="absolute inset-0 bg-white">
-            <img :src="selfieModal.capturedImage" class="w-full h-full object-cover" alt="Captured Selfie">
+            <img :src="selfieModal.capturedImage" class="w-full h-full object-cover transform -scale-x-100" alt="Captured Selfie">
           </div>
           <div x-show="!selfieModal.cameraActive && !selfieModal.capturedImage && selfieModal.countdown === 0" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-6">
             <i class="fa-solid fa-camera text-4xl mb-2 text-slate-500"></i>
@@ -632,6 +639,7 @@
           selfieVerificationRequired: true,
           selfieTimerSeconds: 3,
           cameraFacing: 'user', // 'user' (depan) atau 'environment' (belakang)
+          scannerFacing: 'environment', // 'environment' atau 'user'
           toast: {
             show: false,
             title: '',
@@ -644,6 +652,7 @@
             selfieRequired: true,
             timerSeconds: 3,
             cameraFacing: 'user',
+            scannerFacing: 'environment',
             soundActive: true
           },
           employees: [
@@ -708,6 +717,12 @@
               this.settingsForm.cameraFacing = savedFacing;
             }
 
+            const savedScannerFacing = localStorage.getItem('sppk_scanner_facing');
+            if (savedScannerFacing) {
+              this.scannerFacing = savedScannerFacing;
+              this.settingsForm.scannerFacing = savedScannerFacing;
+            }
+
             // Update live clock
             setInterval(() => {
               const now = new Date();
@@ -722,6 +737,7 @@
             this.selfieVerificationRequired = this.settingsForm.selfieRequired;
             this.selfieTimerSeconds = Number(this.settingsForm.timerSeconds);
             this.cameraFacing = this.settingsForm.cameraFacing;
+            this.scannerFacing = this.settingsForm.scannerFacing;
 
             this.saveToLocalStorage();
             this.showToast("Pengaturan Disimpan", "Pengaturan sistem dan preferensi kamera berhasil diperbarui.", "success");
@@ -734,6 +750,7 @@
               selfieVerificationRequired: this.selfieVerificationRequired,
               selfieTimerSeconds: this.selfieTimerSeconds,
               cameraFacing: this.cameraFacing,
+              scannerFacing: this.scannerFacing,
               employees: this.employees,
               attendanceLogs: this.attendanceLogs
             };
@@ -773,6 +790,10 @@
                   if (parsed.cameraFacing) {
                     this.cameraFacing = parsed.cameraFacing;
                     this.settingsForm.cameraFacing = parsed.cameraFacing;
+                  }
+                  if (parsed.scannerFacing) {
+                    this.scannerFacing = parsed.scannerFacing;
+                    this.settingsForm.scannerFacing = parsed.scannerFacing;
                   }
                   this.saveToLocalStorage();
                   this.showToast("Restore Berhasil", "Data aplikasi berhasil dipulihkan dari file JSON.", "success");
@@ -845,6 +866,7 @@
             localStorage.setItem('sppk_selfie_req', JSON.stringify(this.selfieVerificationRequired));
             localStorage.setItem('sppk_sound', JSON.stringify(this.soundActive));
             localStorage.setItem('sppk_camera_facing', JSON.stringify(this.cameraFacing));
+            localStorage.setItem('sppk_scanner_facing', JSON.stringify(this.scannerFacing));
           },
 
           get uniqueDepartments() {
@@ -879,7 +901,7 @@
                 try {
                   this.html5QrCode = new Html5Qrcode("reader");
                   this.html5QrCode.start(
-                    { facingMode: "environment" },
+                    { facingMode: this.scannerFacing },
                     { fps: 15, qrbox: { width: 300, height: 300 } },
                     (decodedText) => {
                       this.handleEmployeeScan(decodedText);
@@ -979,6 +1001,11 @@
             canvasElement.width = videoElement.videoWidth || 480;
             canvasElement.height = videoElement.videoHeight || 640;
             const ctx = canvasElement.getContext('2d');
+            
+            // Mirror flip canvas drawing if mirrored
+            ctx.translate(canvasElement.width, 0);
+            ctx.scale(-1, 1);
+            
             ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
             this.selfieModal.capturedImage = canvasElement.toDataURL('image/png');
             this.selfieModal.countdown = 0;
