@@ -547,7 +547,7 @@
             <div class="border-t border-slate-100 pt-4 space-y-4">
               <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
                 <i class="fa-solid fa-clock text-indigo-600"></i>
-                <span>Jam Kerja &amp; Timer Selfie</span>
+                <span>Jam Kerja</span>
               </h4>
               <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -559,14 +559,69 @@
                   <input type="time" x-model="company.endTime" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
               </div>
+            </div>
+
+            <!-- PENGATURAN KHUSUS VERIFIKASI SELFIE -->
+            <div class="border-t border-slate-100 pt-4 space-y-4">
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
+                <i class="fa-solid fa-camera-retro text-indigo-600"></i>
+                <span>Pengaturan Verifikasi Selfie &amp; Kamera</span>
+              </h4>
+
+              <div class="space-y-3">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input type="checkbox" x-model="company.requireSelfie" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                  <div>
+                    <span class="text-sm font-medium text-slate-700 block">Wajibkan Foto Selfie Saat Scan Absen</span>
+                    <span class="text-[11px] text-slate-400 block">Jika aktif, setiap scan QR akan membuka jendela kamera verifikasi selfie.</span>
+                  </div>
+                </label>
+
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input type="checkbox" x-model="company.includeWatermark" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                  <div>
+                    <span class="text-sm font-medium text-slate-700 block">Tambahkan Watermark Timestamp &amp; Nama pada Foto</span>
+                    <span class="text-[11px] text-slate-400 block">Menyematkan teks Nama, NIK, dan Waktu secara otomatis pada foto hasil selfie.</span>
+                  </div>
+                </label>
+              </div>
+
               <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Timer Hitung Mundur Selfie</label>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Timer Hitung Mundur Selfie (Detik)</label>
                 <select x-model.number="company.selfieTimer" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
                   <option value="0">Tanpa Timer (Instan)</option>
                   <option value="1">1 Detik</option>
                   <option value="3">3 Detik</option>
                   <option value="5">5 Detik</option>
                 </select>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Posisi Kamera Selfie</label>
+                  <select x-model="company.selfieFacing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="user">Depan (User / Default)</option>
+                    <option value="environment">Belakang (Environment)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Posisi Kamera Scanner</label>
+                  <select x-model="company.scannerFacing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="environment">Belakang (Environment)</option>
+                    <option value="user">Depan (User)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="space-y-2 pt-1">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input type="checkbox" x-model="company.mirrorScan" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                  <span class="text-sm font-medium text-slate-700">Mirror Tampilan Kamera Scanner</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input type="checkbox" x-model="company.mirrorSelfie" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                  <span class="text-sm font-medium text-slate-700">Mirror Tampilan Kamera Selfie</span>
+                </label>
               </div>
             </div>
 
@@ -603,36 +658,6 @@
                   <label class="block text-xs font-bold text-slate-600 mb-1">Template Kalimat Pulang (Check-Out)</label>
                   <input type="text" x-model="company.outMessageTemplate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Gunakan {name} untuk nama karyawan">
                 </div>
-              </div>
-            </div>
-
-            <div class="border-t border-slate-100 pt-4 space-y-3">
-              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pengaturan Kamera &amp; Posisi Lensa</h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">Posisi Kamera Scanner</label>
-                  <select x-model="company.scannerFacing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="environment">Belakang (Environment)</option>
-                    <option value="user">Depan (User)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">Posisi Kamera Selfie Verifikasi</label>
-                  <select x-model="company.selfieFacing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="user">Depan (User / Default)</option>
-                    <option value="environment">Belakang (Environment)</option>
-                  </select>
-                </div>
-              </div>
-              <div class="space-y-2 pt-2">
-                <label class="flex items-center space-x-3 cursor-pointer">
-                  <input type="checkbox" x-model="company.mirrorScan" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
-                  <span class="text-sm font-medium text-slate-700">Mirror Tampilan Kamera Scanner</span>
-                </label>
-                <label class="flex items-center space-x-3 cursor-pointer">
-                  <input type="checkbox" x-model="company.mirrorSelfie" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
-                  <span class="text-sm font-medium text-slate-700">Mirror Tampilan Kamera Selfie</span>
-                </label>
               </div>
             </div>
 
@@ -749,6 +774,23 @@
       </div>
     </div>
 
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div x-show="deleteModal.show" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 no-print" x-cloak>
+      <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4 text-center">
+        <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl shadow-inner">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-base" x-text="deleteModal.title"></h3>
+          <p class="text-xs text-slate-500 mt-1" x-text="deleteModal.message"></p>
+        </div>
+        <div class="flex space-x-3 pt-2">
+          <button @click="deleteModal.show = false" type="button" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-xs font-semibold transition-all">Batal</button>
+          <button @click="confirmDelete()" type="button" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md shadow-rose-200 transition-all">Hapus</button>
+        </div>
+      </div>
+    </div>
+
     <!-- PHOTO ZOOM MODAL -->
     <div x-show="photoZoomModal.show" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 no-print" x-cloak>
       <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 text-center">
@@ -825,6 +867,8 @@
             startTime: '08:00',
             endTime: '17:00',
             selfieTimer: 3,
+            requireSelfie: true,
+            includeWatermark: true,
             mirrorScan: false,
             mirrorSelfie: true,
             scannerFacing: 'environment',
@@ -889,6 +933,13 @@
           employeeCameraModal: {
             show: false,
             stream: null
+          },
+          deleteModal: {
+            show: false,
+            type: '',
+            id: '',
+            title: '',
+            message: ''
           },
           employeeFilter: {
             search: '',
@@ -1137,7 +1188,11 @@
               try { this.html5QrCode.pause(); } catch(e) {}
             }
 
-            this.openSelfieModal(emp, mode);
+            if (this.company.requireSelfie) {
+              this.openSelfieModal(emp, mode);
+            } else {
+              this.saveAttendanceDirectly(emp, mode);
+            }
           },
 
           async openSelfieModal(emp, mode) {
@@ -1223,11 +1278,32 @@
               canvas.width = video.videoWidth || 640;
               canvas.height = video.videoHeight || 480;
               const ctx = canvas.getContext('2d');
+              
               if (this.company.mirrorSelfie) {
                 ctx.translate(canvas.width, 0);
                 ctx.scale(-1, 1);
               }
               ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+              // Apply Watermark if enabled
+              if (this.company.includeWatermark) {
+                ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform for clean text
+                const today = new Date().toISOString().split('T')[0];
+                const timeNow = new Date().toTimeString().split(' ')[0];
+                const emp = this.selfieModal.employee;
+
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+                ctx.fillRect(16, canvas.height - 70, canvas.width - 32, 54);
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.fillText(`${emp.name} (${emp.nik})`, 28, canvas.height - 42);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '12px Inter, sans-serif';
+                ctx.fillText(`Waktu: ${today} ${timeNow} - ${this.company.name}`, 28, canvas.height - 24);
+              }
+
               photoDataUrl = canvas.toDataURL('image/jpeg', 0.85);
             }
 
@@ -1304,17 +1380,95 @@
             };
           },
 
+          saveAttendanceDirectly(emp, mode) {
+            const today = new Date().toISOString().split('T')[0];
+            const timeNow = new Date().toTimeString().split(' ')[0];
+            let log = this.attendanceLogs.find(l => l.nik === emp.nik && l.date === today);
+
+            if (mode === 'in') {
+              if (!log) {
+                log = {
+                  id: 'LOG-' + Date.now(),
+                  nik: emp.nik,
+                  name: emp.name,
+                  department: emp.department,
+                  date: today,
+                  checkIn: timeNow,
+                  checkOut: '',
+                  selfieIn: emp.photo || '',
+                  selfieOut: ''
+                };
+                this.attendanceLogs.unshift(log);
+              } else {
+                log.checkIn = timeNow;
+              }
+              this.showToast('Absen Masuk Berhasil', `${emp.name} berhasil Check-In pukul ${timeNow}.`, 'success');
+              this.speakAnnouncement((this.company.inMessageTemplate || 'Absen masuk berhasil, {name}.').replace('{name}', emp.name));
+            } else {
+              if (log) {
+                log.checkOut = timeNow;
+              } else {
+                log = {
+                  id: 'LOG-' + Date.now(),
+                  nik: emp.nik,
+                  name: emp.name,
+                  department: emp.department,
+                  date: today,
+                  checkIn: '',
+                  checkOut: timeNow,
+                  selfieIn: '',
+                  selfieOut: emp.photo || ''
+                };
+                this.attendanceLogs.unshift(log);
+              }
+              this.showToast('Absen Pulang Berhasil', `${emp.name} berhasil Check-Out pukul ${timeNow}.`, 'success');
+              this.speakAnnouncement((this.company.outMessageTemplate || 'Absen pulang berhasil, {name}.').replace('{name}', emp.name));
+            }
+
+            this.lastScannedEmployee = emp;
+            this.lastScanRecord = log;
+            this.saveToLocalStorage();
+            this.resumeScannerAfterProcess();
+          },
+
           openPhotoZoom(url, title) {
             if (!url) return;
             this.photoZoomModal = { show: true, url, title };
           },
 
           deleteAttendance(id) {
-            if (confirm('Hapus log absensi ini?')) {
-              this.attendanceLogs = this.attendanceLogs.filter(l => l.id !== id);
+            const log = this.attendanceLogs.find(l => l.id === id);
+            this.deleteModal = {
+              show: true,
+              type: 'attendance',
+              id: id,
+              title: 'Hapus Log Absensi',
+              message: `Hapus log absensi untuk ${log ? log.name : 'ini'}?`
+            };
+          },
+
+          deleteEmployee(nik) {
+            const emp = this.employees.find(e => e.nik === nik);
+            this.deleteModal = {
+              show: true,
+              type: 'employee',
+              id: nik,
+              title: 'Hapus Karyawan',
+              message: `Hapus data karyawan ${emp ? emp.name : nik}?`
+            };
+          },
+
+          confirmDelete() {
+            if (this.deleteModal.type === 'attendance') {
+              this.attendanceLogs = this.attendanceLogs.filter(l => l.id !== this.deleteModal.id);
               this.saveToLocalStorage();
               this.showToast('Berhasil', 'Log absensi berhasil dihapus.', 'success');
+            } else if (this.deleteModal.type === 'employee') {
+              this.employees = this.employees.filter(e => e.nik !== this.deleteModal.id);
+              this.saveToLocalStorage();
+              this.showToast('Berhasil', 'Data karyawan berhasil dihapus.', 'success');
             }
+            this.deleteModal.show = false;
           },
 
           exportAttendanceExcel() {
@@ -1538,14 +1692,6 @@
 
             this.saveToLocalStorage();
             this.employeeModal.show = false;
-          },
-
-          deleteEmployee(nik) {
-            if (confirm(`Hapus karyawan dengan NIK ${nik}?`)) {
-              this.employees = this.employees.filter(e => e.nik !== nik);
-              this.saveToLocalStorage();
-              this.showToast('Berhasil', 'Data karyawan berhasil dihapus.', 'success');
-            }
           },
 
           showQrCard(emp) {
