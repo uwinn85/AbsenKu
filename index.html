@@ -133,23 +133,7 @@
       <!-- TAB 1: ABSENSI & SELFIE -->
       <div x-show="activeTab === 'absensi'" class="space-y-6">
         
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center font-bold text-lg">
-              <i class="fa-solid fa-camera-retro"></i>
-            </div>
-            <div>
-              <h4 class="font-bold text-slate-800 text-sm">Mode Verifikasi Selfie Kamera</h4>
-              <p class="text-xs text-slate-500">Wajibkan atau aktifkan tangkapan kamera selfie saat melakukan absen masuk/pulang.</p>
-            </div>
-          </div>
-          <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
-            <button @click="selfieVerificationRequired = !selfieVerificationRequired; saveToLocalStorage();" :class="selfieVerificationRequired ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5">
-              <i :class="selfieVerificationRequired ? 'fa-solid fa-toggle-on text-base' : 'fa-solid fa-toggle-off text-base'"></i>
-              <span x-text="selfieVerificationRequired ? 'Selfie Wajib: AKTIF' : 'Selfie Wajib: NONAKTIF'"></span>
-            </button>
-          </div>
-        </div>
+
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
