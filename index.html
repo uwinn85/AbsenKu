@@ -142,7 +142,7 @@
                 </div>
               </div>
               <div class="mt-4 pt-4 border-t border-slate-100">
-                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">Atau Input NIK / ID Karyawan Manual</label>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">Input NIK / ID Karyawan Manual</label>
                 <form @submit.prevent="processManualScan()" class="flex space-x-2">
                   <input type="text" x-model="manualNikInput" placeholder="Masukkan NIK atau ID Karyawan..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
                   <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-200 transition-all">
@@ -287,8 +287,7 @@
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
           <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <h3 class="font-bold text-slate-800 text-base sm:text-lg">Log Absensi &amp; Galeri Selfie Karyawan</h3>
-              <p class="text-xs text-slate-500 mt-0.5">Daftar kehadiran lengkap: Tanggal, NIK, Nama, Departemen, Jam Masuk/Pulang &amp; Foto Selfie.</p>
+              <h3 class="font-bold text-slate-800 text-base sm:text-lg">Log Absensi &amp; Galeri Selfie</h3>
             </div>
             <div class="flex items-center space-x-2 w-full sm:w-auto">
               <input type="date" x-model="attendanceFilterDate" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -378,7 +377,7 @@
           <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
             <button @click="openAddEmployeeModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md shadow-indigo-200 transition-all flex items-center space-x-2">
               <i class="fa-solid fa-user-plus"></i>
-              <span>Tambah Karyawan</span>
+              <span>Tambah</span>
             </button>
             <div class="relative" x-data="{ openDropdown: false }">
               <button @click="openDropdown = !openDropdown" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 transition-all flex items-center space-x-2">
@@ -412,7 +411,7 @@
               <thead>
                 <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs font-bold uppercase tracking-wider">
                   <th class="py-3 px-4">Foto</th>
-                  <th class="py-3 px-4">NIK &amp; Nama Lengkap</th>
+                  <th class="py-3 px-4">NIK &amp; Nama</th>
                   <th class="py-3 px-4">Departemen</th>
                   <th class="py-3 px-4">Jabatan</th>
                   <th class="py-3 px-4 text-center">QR Code</th>
@@ -471,7 +470,7 @@
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-2xl mx-auto space-y-6">
           <h3 class="font-bold text-slate-800 text-lg flex items-center space-x-2">
             <i class="fa-solid fa-gear text-indigo-600"></i>
-            <span>Pengaturan Identitas Instansi &amp; Sistem</span>
+            <span>Pengaturan Sistem</span>
           </h3>
           <form @submit.prevent="saveCompanySettings()" class="space-y-5">
             <!-- IDENTITAS INSTANSI & LOGO -->
@@ -677,11 +676,11 @@
             <div class="flex flex-wrap gap-3 pt-2">
               <button type="button" @click="backupData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-md shadow-emerald-200 transition-all flex items-center space-x-2">
                 <i class="fa-solid fa-cloud-arrow-down text-base"></i>
-                <span>Backup Data (JSON)</span>
+                <span>Backup Data</span>
               </button>
               <label class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 cursor-pointer shadow-sm">
                 <i class="fa-solid fa-cloud-arrow-up text-base"></i>
-                <span>Restore Data (JSON)</span>
+                <span>Restore Data</span>
                 <input type="file" @change="restoreData($event)" accept=".json" class="hidden">
               </label>
             </div>
