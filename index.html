@@ -47,20 +47,23 @@
       }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col" x-data="sppkApp()" x-init="init()">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col pb-20 md:pb-0" x-data="sppkApp()" x-init="init()">
     
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
-              <i class="fa-solid fa-id-card-clip text-xl"></i>
+            <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200 overflow-hidden flex-shrink-0">
+              <template x-if="company.logo">
+                <img :src="company.logo" class="w-full h-full object-cover" alt="Logo">
+              </template>
+              <template x-if="!company.logo">
+                <i class="fa-solid fa-id-card-clip text-xl"></i>
+              </template>
             </div>
-            <div>
-              <div class="flex items-center space-x-2">
-                <h1 class="text-lg font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent" x-text="company.name || 'System Absensi'"></h1>
-              </div>
-              <p class="text-xs text-slate-500 font-medium">System Absensi</p>
+            <div class="min-w-0">
+              <h1 class="text-base sm:text-lg font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent truncate" x-text="company.name || 'System Absensi'"></h1>
+              <p class="text-[11px] text-slate-500 font-medium truncate" x-text="company.slogan || 'System Absensi & Verifikasi Selfie'"></p>
             </div>
           </div>
           <!-- Navigation Tabs -->
@@ -82,33 +85,6 @@
                 <i class="fa-solid fa-gear text-sm"></i>
               </button>
             </nav>
-
-            <!-- Mobile Menu Dropdown Button -->
-            <div class="md:hidden relative" x-data="{ mobileMenuOpen: false }">
-              <button @click="mobileMenuOpen = !mobileMenuOpen" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold flex items-center space-x-2 transition-all">
-                <i class="fa-solid fa-bars text-indigo-600"></i>
-                <span x-text="activeTab === 'absensi' ? 'Absensi' : activeTab === 'log' ? 'Log' : activeTab === 'karyawan' ? 'Karyawan' : 'Pengaturan'"></span>
-                <i class="fa-solid fa-chevron-down text-[10px]"></i>
-              </button>
-              <div x-show="mobileMenuOpen" @click.away="mobileMenuOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50" x-cloak>
-                <button @click="activeTab = 'absensi'; mobileMenuOpen = false" :class="activeTab === 'absensi' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-700 font-medium'" class="w-full text-left px-4 py-2.5 text-xs flex items-center space-x-2 hover:bg-slate-50">
-                  <i class="fa-solid fa-qrcode w-4 text-indigo-600"></i>
-                  <span>Absensi &amp; Selfie</span>
-                </button>
-                <button @click="activeTab = 'log'; mobileMenuOpen = false" :class="activeTab === 'log' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-700 font-medium'" class="w-full text-left px-4 py-2.5 text-xs flex items-center space-x-2 hover:bg-slate-50">
-                  <i class="fa-solid fa-clock-rotate-left w-4 text-indigo-600"></i>
-                  <span>Log Absensi</span>
-                </button>
-                <button @click="activeTab = 'karyawan'; mobileMenuOpen = false" :class="activeTab === 'karyawan' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-700 font-medium'" class="w-full text-left px-4 py-2.5 text-xs flex items-center space-x-2 hover:bg-slate-50">
-                  <i class="fa-solid fa-users w-4 text-indigo-600"></i>
-                  <span>Data Karyawan</span>
-                </button>
-                <button @click="activeTab = 'pengaturan'; mobileMenuOpen = false" :class="activeTab === 'pengaturan' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-700 font-medium'" class="w-full text-left px-4 py-2.5 text-xs flex items-center space-x-2 hover:bg-slate-50">
-                  <i class="fa-solid fa-gear w-4 text-indigo-600"></i>
-                  <span>Pengaturan</span>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -234,7 +210,7 @@
 
       <!-- LARGER SELFIE VERIFICATION MODAL -->
       <div x-show="selfieModal.show" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 no-print" x-cloak>
-        <div class="bg-white rounded-3xl max-w-2xl sm:max-w-3xl w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+        <div class="bg-white rounded-3xl max-w-2xl sm:max-w-4xl w-full p-6 shadow-2xl border border-slate-200 space-y-4">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
               <h3 class="font-bold text-slate-800 text-sm sm:text-base" x-text="selfieModal.mode === 'in' ? 'Verifikasi Foto Masuk (Check-In)' : 'Verifikasi Foto Pulang (Check-Out)'"></h3>
@@ -245,7 +221,7 @@
             </button>
           </div>
           
-          <div class="relative bg-slate-900 rounded-2xl overflow-hidden h-[440px] sm:h-[520px] flex items-center justify-center shadow-inner">
+          <div class="relative bg-slate-900 rounded-2xl overflow-hidden h-[500px] sm:h-[600px] flex items-center justify-center shadow-inner">
             <video id="selfieVideo" autoplay playsinline muted class="w-full h-full object-cover" :class="company.mirrorSelfie ? 'transform -scale-x-100' : ''"></video>
             <canvas id="selfieCanvas" class="hidden"></canvas>
             
@@ -495,32 +471,103 @@
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-2xl mx-auto space-y-6">
           <h3 class="font-bold text-slate-800 text-lg flex items-center space-x-2">
             <i class="fa-solid fa-gear text-indigo-600"></i>
-            <span>Pengaturan Sistem &amp; Perusahaan</span>
+            <span>Pengaturan Identitas Instansi &amp; Sistem</span>
           </h3>
           <form @submit.prevent="saveCompanySettings()" class="space-y-5">
-            <div>
-              <label class="block text-xs font-bold text-slate-600 mb-1">Nama Perusahaan / Instansi</label>
-              <input type="text" x-model="company.name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
+            <!-- IDENTITAS INSTANSI & LOGO -->
+            <div class="space-y-4">
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
+                <i class="fa-solid fa-building text-indigo-600"></i>
+                <span>Nama, Slogan &amp; Logo Instansi</span>
+              </h4>
+              
               <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Jam Masuk Kerja</label>
-                <input type="time" x-model="company.startTime" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <label class="block text-xs font-bold text-slate-600 mb-1">Nama Perusahaan / Instansi</label>
+                <input type="text" x-model="company.name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Slogan / Keterangan Singkat</label>
+                <input type="text" x-model="company.slogan" placeholder="Contoh: Aplikasi Absensi QR Code & Selfie Terintegrasi" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Logo Instansi</label>
+                <div class="flex items-center space-x-4 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                  <div class="w-14 h-14 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md overflow-hidden flex-shrink-0">
+                    <template x-if="company.logo">
+                      <img :src="company.logo" class="w-full h-full object-cover" alt="Logo">
+                    </template>
+                    <template x-if="!company.logo">
+                      <i class="fa-solid fa-building text-xl"></i>
+                    </template>
+                  </div>
+                  <div class="flex-1 min-w-0 space-y-2">
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" @click="$refs.companyLogoInput.click()" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-folder-open text-indigo-600"></i>
+                        <span>Upload Lokal</span>
+                      </button>
+                      <button type="button" x-show="company.logo" @click="company.logo = ''" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Hapus Logo</span>
+                      </button>
+                    </div>
+                    <input type="file" x-ref="companyLogoInput" @change="handleCompanyLogoFile" accept="image/*" class="hidden">
+                    <input type="url" x-model="company.logo" placeholder="Atau masukkan URL logo (https://...)" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PENGATURAN PENOMORAN NIK -->
+            <div class="border-t border-slate-100 pt-4 space-y-4">
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
+                <i class="fa-solid fa-id-card text-indigo-600"></i>
+                <span>Pengaturan Penomoran NIK Otomatis</span>
+              </h4>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Prefix / Awalan NIK</label>
+                  <input type="text" x-model="company.nikPrefix" placeholder="Contoh: EMP atau PTK" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Jumlah Digit Nomor Urut</label>
+                  <select x-model.number="company.nikLength" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="3">3 Digit (Contoh: 001)</option>
+                    <option value="4">4 Digit (Contoh: 0001)</option>
+                    <option value="5">5 Digit (Contoh: 00001)</option>
+                  </select>
+                </div>
+              </div>
+              <p class="text-[11px] text-slate-400">Format otomatis saat menambah karyawan baru akan mengikuti awalan dan jumlah digit di atas (Misal: <span class="font-mono font-bold text-slate-600" x-text="(company.nikPrefix || 'EMP') + '001'"></span>).</p>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4 space-y-4">
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
+                <i class="fa-solid fa-clock text-indigo-600"></i>
+                <span>Jam Kerja &amp; Timer Selfie</span>
+              </h4>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Jam Masuk Kerja</label>
+                  <input type="time" x-model="company.startTime" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Jam Pulang Kerja</label>
+                  <input type="time" x-model="company.endTime" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Jam Pulang Kerja</label>
-                <input type="time" x-model="company.endTime" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <label class="block text-xs font-bold text-slate-600 mb-1">Timer Hitung Mundur Selfie</label>
+                <select x-model.number="company.selfieTimer" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="0">Tanpa Timer (Instan)</option>
+                  <option value="1">1 Detik</option>
+                  <option value="3">3 Detik</option>
+                  <option value="5">5 Detik</option>
+                </select>
               </div>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-600 mb-1">Timer Hitung Mundur Selfie</label>
-              <select x-model.number="company.selfieTimer" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="0">Tanpa Timer (Instan)</option>
-                <option value="1">1 Detik</option>
-                <option value="3">3 Detik</option>
-                <option value="5">5 Detik</option>
-              </select>
-              <p class="text-[11px] text-slate-400 mt-1">Waktu tunggu hitung mundur sebelum kamera otomatis mengambil foto selfie.</p>
             </div>
 
             <!-- PENGATURAN SPEECH SYNTHESIS (SUARA UCAPAN) -->
@@ -619,7 +666,7 @@
 
     </main>
 
-    <!-- EMPLOYEE FORM MODAL -->
+    <!-- EMPLOYEE FORM MODAL WITH LOCAL UPLOAD & WEBCAM CAPTURE -->
     <div x-show="employeeModal.show" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 no-print" x-cloak>
       <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -631,7 +678,8 @@
         <form @submit.prevent="saveEmployee()" class="space-y-4">
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">NIK / ID Karyawan</label>
-            <input type="text" x-model="employeeModal.nik" :disabled="employeeModal.isEdit" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60">
+            <input type="text" x-model="employeeModal.nik" :disabled="employeeModal.isEdit" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60 font-mono">
+            <p class="text-[10px] text-slate-400 mt-1" x-show="!employeeModal.isEdit">NIK dihasilkan otomatis berdasarkan format penomoran instansi.</p>
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap</label>
@@ -647,15 +695,57 @@
               <input type="text" x-model="employeeModal.position" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: Staff / Manager">
             </div>
           </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-600 mb-1">URL Foto Profil (Opsional)</label>
-            <input type="url" x-model="employeeModal.photo" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="https://...">
+
+          <!-- PROFILE PHOTO SOURCE (LOCAL UPLOAD & WEBCAM) -->
+          <div class="space-y-2">
+            <label class="block text-xs font-bold text-slate-600">Foto Profil Karyawan</label>
+            <div class="flex items-center space-x-4 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+              <img :src="employeeModal.photo || 'https://placehold.co/100x100/e2e8f0/475569?text=Foto'" class="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md flex-shrink-0" alt="Preview Foto">
+              <div class="flex-1 min-w-0 space-y-2">
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" @click="$refs.localPhotoInput.click()" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-folder-open text-indigo-600"></i>
+                    <span>Upload Lokal</span>
+                  </button>
+                  <button type="button" @click="openEmployeeCamera()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-camera text-indigo-600"></i>
+                    <span>Ambil Kamera</span>
+                  </button>
+                </div>
+                <input type="file" x-ref="localPhotoInput" @change="handleEmployeePhotoFile" accept="image/*" class="hidden">
+                <input type="url" x-model="employeeModal.photo" placeholder="Atau masukkan URL foto..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              </div>
+            </div>
           </div>
+
           <div class="pt-2 flex justify-end space-x-3">
             <button type="button" @click="employeeModal.show = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all">Batal</button>
             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-200 transition-all">Simpan</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- EMPLOYEE WEBCAM CAPTURE MODAL -->
+    <div x-show="employeeCameraModal.show" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 no-print" x-cloak>
+      <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="font-bold text-slate-800 text-base">Ambil Foto Profil dari Kamera</h3>
+          <button @click="closeEmployeeCamera()" class="text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+        <div class="relative bg-slate-900 rounded-2xl overflow-hidden h-[360px] flex items-center justify-center shadow-inner">
+          <video id="employeeCameraVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
+          <canvas id="employeeCameraCanvas" class="hidden"></canvas>
+        </div>
+        <div class="flex space-x-3 pt-2">
+          <button @click="closeEmployeeCamera()" type="button" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl text-sm font-semibold transition-all">Batal</button>
+          <button @click="captureEmployeePhoto()" type="button" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-sm font-semibold shadow-lg shadow-indigo-200 transition-all flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-camera"></i>
+            <span>Gunakan Foto Ini</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -702,12 +792,36 @@
       </div>
     </div>
 
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2.5 z-40 shadow-lg no-print flex justify-around items-center">
+      <button @click="activeTab = 'absensi'" :class="activeTab === 'absensi' ? 'text-indigo-600 font-bold scale-105' : 'text-slate-400 hover:text-slate-600'" class="flex flex-col items-center space-y-1 transition-all p-1">
+        <i class="fa-solid fa-qrcode text-lg"></i>
+        <span class="text-[10px]">Absensi</span>
+      </button>
+      <button @click="activeTab = 'log'" :class="activeTab === 'log' ? 'text-indigo-600 font-bold scale-105' : 'text-slate-400 hover:text-slate-600'" class="flex flex-col items-center space-y-1 transition-all p-1">
+        <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+        <span class="text-[10px]">Log</span>
+      </button>
+      <button @click="activeTab = 'karyawan'" :class="activeTab === 'karyawan' ? 'text-indigo-600 font-bold scale-105' : 'text-slate-400 hover:text-slate-600'" class="flex flex-col items-center space-y-1 transition-all p-1">
+        <i class="fa-solid fa-users text-lg"></i>
+        <span class="text-[10px]">Karyawan</span>
+      </button>
+      <button @click="activeTab = 'pengaturan'" :class="activeTab === 'pengaturan' ? 'text-indigo-600 font-bold scale-105' : 'text-slate-400 hover:text-slate-600'" class="flex flex-col items-center space-y-1 transition-all p-1">
+        <i class="fa-solid fa-gear text-lg"></i>
+        <span class="text-[10px]">Pengaturan</span>
+      </button>
+    </nav>
+
     <script>
       function sppkApp() {
         return {
           activeTab: 'absensi',
           company: {
             name: 'System Absensi',
+            slogan: 'Aplikasi Absensi QR Code & Selfie Terintegrasi',
+            logo: '',
+            nikPrefix: 'EMP',
+            nikLength: 3,
             startTime: '08:00',
             endTime: '17:00',
             selfieTimer: 3,
@@ -771,6 +885,10 @@
             department: '',
             position: '',
             photo: ''
+          },
+          employeeCameraModal: {
+            show: false,
+            stream: null
           },
           employeeFilter: {
             search: '',
@@ -1291,10 +1409,27 @@
           },
 
           openAddEmployeeModal() {
+            const prefix = this.company.nikPrefix || 'EMP';
+            const digitLength = Number(this.company.nikLength) || 3;
+            
+            let maxNum = 0;
+            this.employees.forEach(emp => {
+              if (emp.nik.startsWith(prefix)) {
+                const suffix = emp.nik.slice(prefix.length);
+                const num = parseInt(suffix, 10);
+                if (!isNaN(num) && num > maxNum) {
+                  maxNum = num;
+                }
+              }
+            });
+            const nextNum = maxNum + 1;
+            const paddedNum = String(nextNum).padStart(digitLength, '0');
+            const generatedNik = prefix + paddedNum;
+
             this.employeeModal = {
               show: true,
               isEdit: false,
-              nik: 'EMP' + Math.floor(100 + Math.random() * 900),
+              nik: generatedNik,
               name: '',
               department: '',
               position: '',
@@ -1312,6 +1447,70 @@
               position: emp.position,
               photo: emp.photo
             };
+          },
+
+          handleEmployeePhotoFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              this.employeeModal.photo = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          },
+
+          handleCompanyLogoFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              this.company.logo = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          },
+
+          async openEmployeeCamera() {
+            this.employeeCameraModal.show = true;
+            await this.$nextTick();
+            try {
+              const video = document.getElementById('employeeCameraVideo');
+              const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+                audio: false
+              });
+              this.employeeCameraModal.stream = stream;
+              if (video) video.srcObject = stream;
+            } catch (e) {
+              try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                this.employeeCameraModal.stream = stream;
+                const video = document.getElementById('employeeCameraVideo');
+                if (video) video.srcObject = stream;
+              } catch (err) {
+                this.showToast('Gagal Kamera', 'Tidak dapat mengakses kamera perangkat.', 'error');
+                this.closeEmployeeCamera();
+              }
+            }
+          },
+
+          captureEmployeePhoto() {
+            const video = document.getElementById('employeeCameraVideo');
+            const canvas = document.getElementById('employeeCameraCanvas');
+            if (video && canvas) {
+              canvas.width = video.videoWidth || 640;
+              canvas.height = video.videoHeight || 480;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              this.employeeModal.photo = canvas.toDataURL('image/jpeg', 0.85);
+            }
+            this.closeEmployeeCamera();
+          },
+
+          closeEmployeeCamera() {
+            if (this.employeeCameraModal.stream) {
+              this.employeeCameraModal.stream.getTracks().forEach(t => t.stop());
+            }
+            this.employeeCameraModal.show = false;
           },
 
           saveEmployee() {
@@ -1369,7 +1568,7 @@
 
           saveCompanySettings() {
             this.saveToLocalStorage();
-            this.showToast('Pengaturan Disimpan', 'Konfigurasi perusahaan dan sistem berhasil diperbarui.', 'success');
+            this.showToast('Pengaturan Disimpan', 'Identitas instansi, format NIK, dan sistem berhasil diperbarui.', 'success');
           },
 
           backupData() {
