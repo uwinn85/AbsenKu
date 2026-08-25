@@ -64,7 +64,7 @@
               <p class="text-xs text-slate-500 font-medium">System Absensi</p>
             </div>
           </div>
-          <!-- Desktop Navigation Tabs -->
+          <!-- Navigation Tabs -->
           <div class="flex items-center space-x-3">
             <nav class="hidden md:flex space-x-1 bg-slate-100 p-1 rounded-2xl border border-slate-200">
               <button @click="activeTab = 'absensi'" :class="activeTab === 'absensi' ? 'bg-white text-indigo-600 shadow-sm font-semibold' : 'text-slate-600 hover:text-slate-900 font-medium'" class="px-3 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5">
@@ -84,6 +84,33 @@
                 <span>Pengaturan</span>
               </button>
             </nav>
+
+            <!-- Mobile Menu Dropdown Button -->
+            <div class="md:hidden relative" x-data="{ mobileMenuOpen: false }">
+              <button @click="mobileMenuOpen = !mobileMenuOpen" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold flex items-center space-x-2 transition-all">
+                <i class="fa-solid fa-bars text-indigo-600"></i>
+                <span x-text="activeTab === 'absensi' ? 'Absensi' : activeTab === 'log' ? 'Log' : activeTab === 'karyawan' ? 'Karyawan' : 'Pengaturan'"></span>
+                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+              </button>
+              <div x-show="mobileMenuOpen" @click.away="mobileMenuOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50" x-cloak>
+                <button @click="activeTab = 'absensi'; mobileMenuOpen = false" :class="activeTab === 'absensi' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-700 font-medium'" class="w-full text-left px-4 py-2.5 text-xs flex items-center space-x-2 hover:bg-slate-50">
+                  <i class="fa-solid fa-qrcode w-4 text-indigo-600"></i>
+                  <span>Absensi &amp; Selfie</span>
+                </button>
+                <button @click="activeTab = 'log'; mobileMenuOpen = false" :class="activeTab === 'log' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-700 font-medium'" class="w-full text-left px-4 py-2.5 text-xs flex items-center space-x-2 hover:bg-slate-50">
+                  <i class="fa-solid fa-clock-rotate-left w-4 text-indigo-600"></i>
+                  <span>Log Absensi</span>
+                </button>
+                <button @click="activeTab = 'karyawan'; mobileMenuOpen = false" :class="activeTab === 'karyawan' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-700 font-medium'" class="w-full text-left px-4 py-2.5 text-xs flex items-center space-x-2 hover:bg-slate-50">
+                  <i class="fa-solid fa-users w-4 text-indigo-600"></i>
+                  <span>Data Karyawan</span>
+                </button>
+                <button @click="activeTab = 'pengaturan'; mobileMenuOpen = false" :class="activeTab === 'pengaturan' ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-700 font-medium'" class="w-full text-left px-4 py-2.5 text-xs flex items-center space-x-2 hover:bg-slate-50">
+                  <i class="fa-solid fa-gear w-4 text-indigo-600"></i>
+                  <span>Pengaturan</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -114,7 +141,7 @@
     </div>
 
     <!-- MAIN CONTAINER -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
       
       <!-- TAB 1: ABSENSI & SELFIE -->
       <div x-show="activeTab === 'absensi'" class="space-y-6">
@@ -537,8 +564,24 @@
             </div>
 
             <div class="border-t border-slate-100 pt-4 space-y-3">
-              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pengaturan Mirror Kamera</h4>
-              <div class="space-y-2">
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pengaturan Kamera &amp; Posisi Lensa</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Posisi Kamera Scanner QodeQR</label>
+                  <select x-model="company.scannerFacing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="environment">Belakang (Environment)</option>
+                    <option value="user">Depan (User)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Posisi Kamera Selfie Verifikasi</label>
+                  <select x-model="company.selfieFacing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="user">Depan (User / Default)</option>
+                    <option value="environment">Belakang (Environment)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="space-y-2 pt-2">
                 <label class="flex items-center space-x-3 cursor-pointer">
                   <input type="checkbox" x-model="company.mirrorScan" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
                   <span class="text-sm font-medium text-slate-700">Mirror Tampilan Kamera Scanner (QodeQR)</span>
@@ -663,6 +706,26 @@
       </div>
     </div>
 
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <div class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-40 px-3 py-2 flex justify-around items-center shadow-lg no-print">
+      <button @click="activeTab = 'absensi'" :class="activeTab === 'absensi' ? 'text-indigo-600 bg-indigo-50 font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'" class="flex flex-col items-center justify-center py-1 px-3 rounded-xl text-[10px] transition-all">
+        <i class="fa-solid fa-qrcode text-base mb-0.5"></i>
+        <span>Absensi</span>
+      </button>
+      <button @click="activeTab = 'log'" :class="activeTab === 'log' ? 'text-indigo-600 bg-indigo-50 font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'" class="flex flex-col items-center justify-center py-1 px-3 rounded-xl text-[10px] transition-all">
+        <i class="fa-solid fa-clock-rotate-left text-base mb-0.5"></i>
+        <span>Log</span>
+      </button>
+      <button @click="activeTab = 'karyawan'" :class="activeTab === 'karyawan' ? 'text-indigo-600 bg-indigo-50 font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'" class="flex flex-col items-center justify-center py-1 px-3 rounded-xl text-[10px] transition-all">
+        <i class="fa-solid fa-users text-base mb-0.5"></i>
+        <span>Karyawan</span>
+      </button>
+      <button @click="activeTab = 'pengaturan'" :class="activeTab === 'pengaturan' ? 'text-indigo-600 bg-indigo-50 font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'" class="flex flex-col items-center justify-center py-1 px-3 rounded-xl text-[10px] transition-all">
+        <i class="fa-solid fa-gear text-base mb-0.5"></i>
+        <span>Pengaturan</span>
+      </button>
+    </div>
+
     <!-- APPLICATION LOGIC -->
     <script>
       function sppkApp() {
@@ -675,6 +738,8 @@
             selfieTimer: 3,
             mirrorScan: false,
             mirrorSelfie: true,
+            scannerFacing: 'environment',
+            selfieFacing: 'user',
             speechEnabled: true,
             speechRate: 1.0,
             speechPitch: 1.0,
@@ -845,23 +910,53 @@
           },
 
           startScanner() {
+            if (this.scannerTransitioning || this.scannerActive) return;
+            this.scannerTransitioning = true;
             this.scannerActive = true;
-            setTimeout(() => {
-              if (!this.html5QrCode) {
-                this.html5QrCode = new Html5Qrcode("reader");
+            
+            setTimeout(async () => {
+              try {
+                if (!this.html5QrCode) {
+                  this.html5QrCode = new Html5Qrcode("reader");
+                }
+                
+                const currentState = this.html5QrCode.getState();
+                if (currentState === Html5QrcodeScannerState.SCANNING || currentState === Html5QrcodeScannerState.PAUSED) {
+                  this.scannerTransitioning = false;
+                  return;
+                }
+
+                const facing = this.company.scannerFacing || "environment";
+                await this.html5QrCode.start(
+                  { facingMode: facing },
+                  { fps: 10, qrbox: { width: 250, height: 250 } },
+                  (decodedText) => {
+                    this.handleScannedNik(decodedText);
+                    this.stopScanner();
+                  },
+                  (error) => {}
+                );
+                this.scannerTransitioning = false;
+              } catch (err) {
+                // Fallback to default or user-facing camera if environment fails
+                try {
+                  const fallbackFacing = this.company.scannerFacing === 'environment' ? 'user' : 'environment';
+                  await this.html5QrCode.start(
+                    { facingMode: fallbackFacing },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    (decodedText) => {
+                      this.handleScannedNik(decodedText);
+                      this.stopScanner();
+                    },
+                    (error) => {}
+                  );
+                  this.scannerTransitioning = false;
+                } catch (err2) {
+                  this.showToast('Gagal Kamera', 'Tidak dapat mengakses kamera perangkat untuk QodeQR.', 'error');
+                  this.scannerActive = false;
+                  this.scannerTransitioning = false;
+                }
               }
-              this.html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                (decodedText) => {
-                  this.handleScannedNik(decodedText);
-                  this.stopScanner();
-                },
-                (error) => {}
-              ).catch(err => {
-                this.showToast('Gagal Kamera', 'Tidak dapat mengakses kamera perangkat untuk QodeQR.', 'error');
-                this.scannerActive = false;
-              });
             }, 300);
           },
 
@@ -925,7 +1020,16 @@
 
             setTimeout(async () => {
               try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+                const facing = this.company.selfieFacing || "user";
+                let stream;
+                try {
+                  stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: facing, width: 1280, height: 720 } 
+                  });
+                } catch(e) {
+                  stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                }
+
                 this.selfieModal.stream = stream;
                 const videoEl = document.getElementById('selfieVideo');
                 if (videoEl) {
