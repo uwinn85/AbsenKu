@@ -49,7 +49,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col" x-data="sppkApp()" x-init="init()">
     
-    <!-- HEADER -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
@@ -79,7 +78,6 @@
                 <i class="fa-solid fa-users"></i>
                 <span>Data Karyawan</span>
               </button>
-              <!-- PENGATURAN ICON ONLY -->
               <button @click="activeTab = 'pengaturan'" :class="activeTab === 'pengaturan' ? 'bg-white text-indigo-600 shadow-sm font-semibold' : 'text-slate-600 hover:text-slate-900 font-medium'" class="px-3.5 py-2 rounded-xl text-xs transition-all flex items-center justify-center" title="Pengaturan">
                 <i class="fa-solid fa-gear text-sm"></i>
               </button>
@@ -116,7 +114,6 @@
       </div>
     </header>
 
-    <!-- RESPONSIVE TOAST NOTIFICATION (AUTO CLOSE 3 SECONDS, CENTERED) -->
     <div x-show="toast.show" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="fixed top-24 inset-x-0 z-50 flex justify-center px-4 pointer-events-none no-print" x-cloak>
       <div class="pointer-events-auto bg-slate-900/95 backdrop-blur-md text-white p-3.5 sm:p-4 rounded-2xl shadow-2xl flex items-center space-x-3 border border-slate-700/80 max-w-md w-full">
         <div :class="{
@@ -140,7 +137,6 @@
       </div>
     </div>
 
-    <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-8">
       
       <!-- TAB 1: ABSENSI & SELFIE -->
@@ -282,7 +278,7 @@
               </div>
               <h3 class="font-bold text-slate-800 text-sm sm:text-base" x-text="scanResultModal.mode === 'in' ? 'Absen Masuk Berhasil' : 'Absen Pulang Berhasil'"></h3>
             </div>
-            <button @click="scanResultModal.show = false" class="text-slate-400 hover:text-slate-600">
+            <button @click="scanResultModal.show = false; resumeScannerAfterProcess()" class="text-slate-400 hover:text-slate-600">
               <i class="fa-solid fa-xmark text-xl"></i>
             </button>
           </div>
@@ -304,7 +300,7 @@
             </div>
           </div>
 
-          <button @click="scanResultModal.show = false" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-sm font-semibold shadow-lg shadow-indigo-200 transition-all">
+          <button @click="scanResultModal.show = false; resumeScannerAfterProcess()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-sm font-semibold shadow-lg shadow-indigo-200 transition-all">
             Tutup / Lanjutkan
           </button>
         </div>
@@ -706,7 +702,6 @@
       </div>
     </div>
 
-    <!-- APPLICATION LOGIC -->
     <script>
       function sppkApp() {
         return {
@@ -731,6 +726,7 @@
           scannerTransitioning: false,
           html5QrCode: null,
           manualNikInput: '',
+          isProcessingScan: false,
           lastScannedEmployee: null,
           lastScanRecord: null,
           attendanceFilterDate: new Date().toISOString().split('T')[0],
@@ -817,7 +813,6 @@
             const savedLogs = localStorage.getItem('sppk_logs');
             if (savedLogs) this.attendanceLogs = JSON.parse(savedLogs);
 
-            // Auto start scanner on load
             setTimeout(() => {
               this.startScanner();
             }, 500);
@@ -833,16 +828,16 @@
 
               if (type === 'success') {
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
                 gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
                 osc.start();
                 osc.stop(audioCtx.currentTime + 0.3);
               } else {
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3
-                osc.frequency.setValueAtTime(150, audioCtx.currentTime + 0.15); // Low buzz
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime + 0.15);
                 gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
                 osc.start();
@@ -878,7 +873,7 @@
             }
             setTimeout(() => {
               this.toast.show = false;
-            }, 3000); // Automatically closes after 3 seconds
+            }, 3000);
           },
 
           saveToLocalStorage() {
@@ -899,6 +894,7 @@
             if (this.scannerTransitioning || this.scannerActive) return;
             this.scannerTransitioning = true;
             this.scannerActive = true;
+            this.isProcessingScan = false;
             
             setTimeout(async () => {
               try {
@@ -971,6 +967,17 @@
             }
           },
 
+          resumeScannerAfterProcess() {
+            setTimeout(() => {
+              this.isProcessingScan = false;
+              if (this.html5QrCode && this.scannerActive) {
+                try {
+                  this.html5QrCode.resume();
+                } catch(e) {}
+              }
+            }, 1000);
+          },
+
           processManualScan() {
             if (!this.manualNikInput.trim()) return;
             this.handleScannedNik(this.manualNikInput.trim());
@@ -978,11 +985,15 @@
           },
 
           handleScannedNik(nik) {
+            if (this.isProcessingScan) return;
+            
             const emp = this.employees.find(e => e.nik.toLowerCase() === nik.toLowerCase());
             if (!emp) {
               this.playBeep('error');
               this.speakAnnouncement('Karyawan tidak terdaftar');
               this.showToast('Karyawan Tidak Ditemukan', `NIK "${nik}" tidak terdaftar dalam sistem.`, 'error');
+              this.isProcessingScan = true;
+              setTimeout(() => { this.isProcessingScan = false; }, 3000);
               return;
             }
 
@@ -998,70 +1009,76 @@
               this.showToast('Sudah Lengkap', `${emp.name} sudah melakukan Check-In dan Check-Out hari ini.`, 'warning');
               this.lastScannedEmployee = emp;
               this.lastScanRecord = existingLog;
+              this.isProcessingScan = true;
+              setTimeout(() => { this.isProcessingScan = false; }, 4000);
               return;
+            }
+
+            this.isProcessingScan = true;
+            if (this.html5QrCode) {
+              try { this.html5QrCode.pause(); } catch(e) {}
             }
 
             this.openSelfieModal(emp, mode);
           },
 
           async openSelfieModal(emp, mode) {
-            const timerVal = Number(this.company.selfieTimer) || 0;
-            this.selfieModal = { 
-              show: true, 
-              nik: emp.nik, 
-              employee: emp, 
-              mode: mode, 
+            this.selfieModal = {
+              show: true,
+              nik: emp.nik,
+              employee: emp,
+              mode: mode,
               stream: null,
-              countdown: timerVal,
-              countdownActive: timerVal > 0,
+              countdown: Number(this.company.selfieTimer) || 3,
+              countdownActive: (Number(this.company.selfieTimer) > 0),
               timerInterval: null
             };
 
-            setTimeout(async () => {
-              try {
-                const facing = this.company.selfieFacing || "user";
-                let stream;
-                try {
-                  stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 } } 
-                  });
-                } catch(e) {
-                  try {
-                    const fallbackFacing = facing === 'user' ? 'environment' : 'user';
-                    stream = await navigator.mediaDevices.getUserMedia({ 
-                      video: { facingMode: fallbackFacing } 
-                    });
-                  } catch(e2) {
-                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            await this.$nextTick();
+            try {
+              const video = document.getElementById('selfieVideo');
+              const facing = this.company.selfieFacing || 'user';
+              const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 } },
+                audio: false
+              });
+              this.selfieModal.stream = stream;
+              if (video) {
+                video.srcObject = stream;
+              }
+
+              if (this.selfieModal.countdownActive) {
+                this.selfieModal.timerInterval = setInterval(() => {
+                  this.selfieModal.countdown--;
+                  if (this.selfieModal.countdown <= 0) {
+                    clearInterval(this.selfieModal.timerInterval);
+                    this.selfieModal.countdownActive = false;
+                    this.captureAndSaveAttendance();
                   }
-                }
-
+                }, 1000);
+              }
+            } catch (err) {
+              try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 this.selfieModal.stream = stream;
-                const videoEl = document.getElementById('selfieVideo');
-                if (videoEl) {
-                  videoEl.srcObject = stream;
-                }
+                const video = document.getElementById('selfieVideo');
+                if (video) video.srcObject = stream;
 
-                if (timerVal > 0) {
-                  this.startSelfieCountdown();
+                if (this.selfieModal.countdownActive) {
+                  this.selfieModal.timerInterval = setInterval(() => {
+                    this.selfieModal.countdown--;
+                    if (this.selfieModal.countdown <= 0) {
+                      clearInterval(this.selfieModal.timerInterval);
+                      this.selfieModal.countdownActive = false;
+                      this.captureAndSaveAttendance();
+                    }
+                  }, 1000);
                 }
-              } catch (err) {
-                this.showToast('Akses Kamera Ditolak', 'Harap izinkan akses kamera untuk verifikasi selfie.', 'error');
+              } catch (e) {
+                this.showToast('Kamera Selfie Gagal', 'Tidak dapat mengakses kamera depan untuk verifikasi selfie.', 'error');
                 this.closeSelfieModal();
               }
-            }, 200);
-          },
-
-          startSelfieCountdown() {
-            this.selfieModal.countdownActive = true;
-            this.selfieModal.timerInterval = setInterval(() => {
-              this.selfieModal.countdown--;
-              if (this.selfieModal.countdown <= 0) {
-                clearInterval(this.selfieModal.timerInterval);
-                this.selfieModal.countdownActive = false;
-                this.captureAndSaveAttendance();
-              }
-            }, 1000);
+            }
           },
 
           closeSelfieModal() {
@@ -1072,37 +1089,34 @@
               this.selfieModal.stream.getTracks().forEach(track => track.stop());
             }
             this.selfieModal.show = false;
+            this.resumeScannerAfterProcess();
           },
 
           captureAndSaveAttendance() {
             if (this.selfieModal.timerInterval) {
               clearInterval(this.selfieModal.timerInterval);
             }
-            this.selfieModal.countdownActive = false;
 
-            const videoEl = document.getElementById('selfieVideo');
-            const canvasEl = document.getElementById('selfieCanvas');
-            if (!videoEl || !canvasEl) return;
+            const video = document.getElementById('selfieVideo');
+            const canvas = document.getElementById('selfieCanvas');
+            let photoDataUrl = 'https://placehold.co/400x400/e2e8f0/475569?text=Selfie';
 
-            canvasEl.width = videoEl.videoWidth || 1280;
-            canvasEl.height = videoEl.videoHeight || 720;
-            const ctx = canvasEl.getContext('2d');
-            
-            if (this.company.mirrorSelfie) {
-              ctx.save();
-              ctx.scale(-1, 1);
-              ctx.drawImage(videoEl, -canvasEl.width, 0, canvasEl.width, canvasEl.height);
-              ctx.restore();
-            } else {
-              ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+            if (video && canvas) {
+              canvas.width = video.videoWidth || 640;
+              canvas.height = video.videoHeight || 480;
+              const ctx = canvas.getContext('2d');
+              if (this.company.mirrorSelfie) {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+              }
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              photoDataUrl = canvas.toDataURL('image/jpeg', 0.85);
             }
 
-            const photoDataUrl = canvasEl.toDataURL('image/jpeg', 0.85);
-
-            const today = new Date().toISOString().split('T')[0];
-            const timeNow = new Date().toTimeString().split(' ')[0];
             const emp = this.selfieModal.employee;
             const mode = this.selfieModal.mode;
+            const today = new Date().toISOString().split('T')[0];
+            const timeNow = new Date().toTimeString().split(' ')[0];
 
             let log = this.attendanceLogs.find(l => l.nik === emp.nik && l.date === today);
 
@@ -1124,19 +1138,30 @@
                 log.checkIn = timeNow;
                 log.selfieIn = photoDataUrl;
               }
-              const speechMsg = (this.company.inMessageTemplate || 'Absen masuk berhasil, {name}. Selamat bekerja.').replace(/{name}/g, emp.name);
-              this.playBeep('success');
-              this.speakAnnouncement(speechMsg);
-              this.showToast('Check-In Berhasil', `Kehadiran masuk ${emp.name} berhasil dicatat.`);
+              this.showToast('Absen Masuk Berhasil', `${emp.name} berhasil melakukan Check-In pukul ${timeNow}.`, 'success');
+              const msg = (this.company.inMessageTemplate || 'Absen masuk berhasil, {name}.').replace('{name}', emp.name);
+              this.speakAnnouncement(msg);
             } else {
               if (log) {
                 log.checkOut = timeNow;
                 log.selfieOut = photoDataUrl;
-                const speechMsg = (this.company.outMessageTemplate || 'Absen pulang berhasil, {name}. Hati-hati di jalan.').replace(/{name}/g, emp.name);
-                this.playBeep('success');
-                this.speakAnnouncement(speechMsg);
-                this.showToast('Check-Out Berhasil', `Kepulangan ${emp.name} berhasil dicatat.`);
+              } else {
+                log = {
+                  id: 'LOG-' + Date.now(),
+                  nik: emp.nik,
+                  name: emp.name,
+                  department: emp.department,
+                  date: today,
+                  checkIn: '',
+                  checkOut: timeNow,
+                  selfieIn: '',
+                  selfieOut: photoDataUrl
+                };
+                this.attendanceLogs.unshift(log);
               }
+              this.showToast('Absen Pulang Berhasil', `${emp.name} berhasil melakukan Check-Out pukul ${timeNow}.`, 'success');
+              const msg = (this.company.outMessageTemplate || 'Absen pulang berhasil, {name}.').replace('{name}', emp.name);
+              this.speakAnnouncement(msg);
             }
 
             this.lastScannedEmployee = emp;
@@ -1156,6 +1181,7 @@
               selfieUrl: photoDataUrl,
               timeoutId: setTimeout(() => {
                 this.scanResultModal.show = false;
+                this.resumeScannerAfterProcess();
               }, 3000)
             };
           },
@@ -1166,36 +1192,109 @@
           },
 
           deleteAttendance(id) {
-            this.attendanceLogs = this.attendanceLogs.filter(l => l.id !== id);
-            this.saveToLocalStorage();
-            this.showToast('Berhasil Dihapus', 'Log absensi telah dihapus.', 'warning');
+            if (confirm('Hapus log absensi ini?')) {
+              this.attendanceLogs = this.attendanceLogs.filter(l => l.id !== id);
+              this.saveToLocalStorage();
+              this.showToast('Berhasil', 'Log absensi berhasil dihapus.', 'success');
+            }
           },
 
-          get uniqueDepartments() {
-            return [...new Set(this.employees.map(e => e.department))];
+          exportAttendanceExcel() {
+            if (this.attendanceLogs.length === 0) {
+              this.showToast('Kosong', 'Tidak ada data rekap absensi untuk diexport.', 'warning');
+              return;
+            }
+            const dataToExport = this.attendanceLogs.map(l => ({
+              'Tanggal': l.date,
+              'NIK': l.nik,
+              'Nama Karyawan': l.name,
+              'Departemen': l.department,
+              'Jam Masuk': l.checkIn || '-',
+              'Jam Pulang': l.checkOut || '-'
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Absensi");
+            XLSX.writeFile(workbook, `Rekap_Absensi_${this.attendanceFilterDate || 'Semua'}.xlsx`);
+            this.showToast('Export Berhasil', 'Rekap absensi berhasil diunduh dalam format Excel.', 'success');
           },
 
-          get filteredEmployees() {
-            return this.employees.filter(e => {
-              const matchSearch = e.name.toLowerCase().includes(this.employeeFilter.search.toLowerCase()) ||
-                                  e.nik.toLowerCase().includes(this.employeeFilter.search.toLowerCase()) ||
-                                  e.position.toLowerCase().includes(this.employeeFilter.search.toLowerCase());
-              const matchDept = !this.employeeFilter.department || e.department === this.employeeFilter.department;
-              return matchSearch && matchDept;
-            });
+          downloadExcelTemplate() {
+            const templateData = [
+              { NIK: 'EMP005', Nama: 'Bambang Sudirman', Departemen: 'Marketing', Jabatan: 'Sales Executive', 'URL Foto': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200' }
+            ];
+            const worksheet = XLSX.utils.json_to_sheet(templateData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Template Karyawan");
+            XLSX.writeFile(workbook, "Template_Import_Karyawan.xlsx");
+            this.showToast('Template Diunduh', 'Template Excel import karyawan berhasil diunduh.', 'success');
           },
 
-          get filteredAttendanceLogs() {
-            return this.attendanceLogs.filter(l => {
-              return !this.attendanceFilterDate || l.date === this.attendanceFilterDate;
-            });
+          importExcelData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const json = XLSX.utils.sheet_to_json(worksheet);
+
+                let countAdded = 0;
+                json.forEach(row => {
+                  const nik = String(row['NIK'] || row['nik'] || '').trim();
+                  const name = String(row['Nama'] || row['nama'] || row['Nama Lengkap'] || '').trim();
+                  const department = String(row['Departemen'] || row['departemen'] || '').trim();
+                  const position = String(row['Jabatan'] || row['jabatan'] || '').trim();
+                  const photo = String(row['URL Foto'] || row['foto'] || '').trim();
+
+                  if (nik && name) {
+                    const existingIndex = this.employees.findIndex(emp => emp.nik.toLowerCase() === nik.toLowerCase());
+                    const newEmp = { nik, name, department: department || 'Umum', position: position || 'Staff', photo: photo || '' };
+                    if (existingIndex >= 0) {
+                      this.employees[existingIndex] = newEmp;
+                    } else {
+                      this.employees.push(newEmp);
+                      countAdded++;
+                    }
+                  }
+                });
+                this.saveToLocalStorage();
+                this.showToast('Import Berhasil', `Berhasil memproses data dari Excel. (${countAdded} karyawan baru ditambahkan).`, 'success');
+              } catch (err) {
+                this.showToast('Gagal Import', 'Format file Excel tidak valid.', 'error');
+              }
+            };
+            reader.readAsArrayBuffer(file);
+            event.target.value = '';
+          },
+
+          exportEmployeesExcel() {
+            if (this.employees.length === 0) {
+              this.showToast('Kosong', 'Tidak ada data karyawan.', 'warning');
+              return;
+            }
+            const dataToExport = this.employees.map(e => ({
+              'NIK': e.nik,
+              'Nama': e.name,
+              'Departemen': e.department,
+              'Jabatan': e.position,
+              'URL Foto': e.photo
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Data Karyawan");
+            XLSX.writeFile(workbook, "Data_Karyawan_Absensi.xlsx");
+            this.showToast('Export Berhasil', 'Data karyawan berhasil diexport ke Excel.', 'success');
           },
 
           openAddEmployeeModal() {
             this.employeeModal = {
               show: true,
               isEdit: false,
-              nik: 'EMP' + String(this.employees.length + 1).padStart(3, '0'),
+              nik: 'EMP' + Math.floor(100 + Math.random() * 900),
               name: '',
               department: '',
               position: '',
@@ -1211,34 +1310,43 @@
               name: emp.name,
               department: emp.department,
               position: emp.position,
-              photo: emp.photo || ''
+              photo: emp.photo
             };
           },
 
           saveEmployee() {
-            if (this.employeeModal.isEdit) {
-              const idx = this.employees.findIndex(e => e.nik === this.employeeModal.nik);
-              if (idx !== -1) {
-                this.employees[idx] = { ...this.employeeModal };
+            const { isEdit, nik, name, department, position, photo } = this.employeeModal;
+            if (!nik || !name) return;
+
+            if (isEdit) {
+              const emp = this.employees.find(e => e.nik === nik);
+              if (emp) {
+                emp.name = name;
+                emp.department = department;
+                emp.position = position;
+                emp.photo = photo;
               }
-              this.showToast('Berhasil', 'Data karyawan berhasil diperbarui.');
+              this.showToast('Berhasil', 'Data karyawan berhasil diperbarui.', 'success');
             } else {
-              const exists = this.employees.some(e => e.nik === this.employeeModal.nik);
-              if (exists) {
-                this.showToast('NIK Sudah Ada', 'NIK tersebut sudah terdaftar.', 'error');
+              const existing = this.employees.find(e => e.nik.toLowerCase() === nik.toLowerCase());
+              if (existing) {
+                this.showToast('Gagal', `NIK "${nik}" sudah terdaftar.`, 'error');
                 return;
               }
-              this.employees.push({ ...this.employeeModal });
-              this.showToast('Berhasil', 'Karyawan baru berhasil ditambahkan.');
+              this.employees.push({ nik, name, department, position, photo });
+              this.showToast('Berhasil', 'Karyawan baru berhasil ditambahkan.', 'success');
             }
+
             this.saveToLocalStorage();
             this.employeeModal.show = false;
           },
 
           deleteEmployee(nik) {
-            this.employees = this.employees.filter(e => e.nik !== nik);
-            this.saveToLocalStorage();
-            this.showToast('Berhasil', 'Data karyawan telah dihapus.', 'warning');
+            if (confirm(`Hapus karyawan dengan NIK ${nik}?`)) {
+              this.employees = this.employees.filter(e => e.nik !== nik);
+              this.saveToLocalStorage();
+              this.showToast('Berhasil', 'Data karyawan berhasil dihapus.', 'success');
+            }
           },
 
           showQrCard(emp) {
@@ -1249,8 +1357,8 @@
                 container.innerHTML = '';
                 new QRCode(container, {
                   text: emp.nik,
-                  width: 140,
-                  height: 140,
+                  width: 180,
+                  height: 180,
                   colorDark: "#0f172a",
                   colorLight: "#ffffff",
                   correctLevel: QRCode.CorrectLevel.H
@@ -1261,24 +1369,22 @@
 
           saveCompanySettings() {
             this.saveToLocalStorage();
-            this.showToast('Berhasil', 'Pengaturan sistem, timer selfie, dan kamera berhasil disimpan.');
+            this.showToast('Pengaturan Disimpan', 'Konfigurasi perusahaan dan sistem berhasil diperbarui.', 'success');
           },
 
           backupData() {
-            const data = {
+            const backupObj = {
               company: this.company,
               employees: this.employees,
               attendanceLogs: this.attendanceLogs,
               backupDate: new Date().toISOString()
             };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `sppk_backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            this.showToast('Backup Berhasil', 'File cadangan data sistem berhasil diunduh.');
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `Backup_System_Absensi_${new Date().toISOString().split('T')[0]}.json`);
+            dlAnchorElem.click();
+            this.showToast('Backup Berhasil', 'File cadangan sistem (JSON) berhasil diunduh.', 'success');
           },
 
           restoreData(event) {
@@ -1287,98 +1393,49 @@
             const reader = new FileReader();
             reader.onload = (e) => {
               try {
-                const data = JSON.parse(e.target.result);
-                if (data.company) this.company = data.company;
-                if (data.employees) this.employees = data.employees;
-                if (data.attendanceLogs) this.attendanceLogs = data.attendanceLogs;
+                const parsed = JSON.parse(e.target.result);
+                if (parsed.company) this.company = parsed.company;
+                if (parsed.employees) this.employees = parsed.employees;
+                if (parsed.attendanceLogs) this.attendanceLogs = parsed.attendanceLogs;
                 this.saveToLocalStorage();
-                this.showToast('Restore Berhasil', 'Data dan pengaturan berhasil dipulihkan!');
-                setTimeout(() => {
-                  window.location.reload();
-                }, 1000);
+                this.showToast('Restore Berhasil', 'Semua data sistem berhasil dipulihkan dari file cadangan.', 'success');
               } catch (err) {
-                this.showToast('Gagal Restore', 'File backup tidak valid atau rusak.', 'error');
+                this.showToast('Gagal Restore', 'File cadangan tidak valid.', 'error');
               }
             };
             reader.readAsText(file);
             event.target.value = '';
           },
 
-          exportAttendanceExcel() {
-            const worksheet = XLSX.utils.json_to_sheet(this.filteredAttendanceLogs.map(l => ({
-              'Tanggal': l.date,
-              'NIK': l.nik,
-              'Nama Karyawan': l.name,
-              'Departemen': l.department,
-              'Jam Masuk': l.checkIn,
-              'Jam Pulang': l.checkOut || 'Belum'
-            })));
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Log Absensi");
-            XLSX.writeFile(workbook, `Rekap_Absensi_${this.attendanceFilterDate}.xlsx`);
-            this.showToast('Export Berhasil', 'File Excel rekap absensi berhasil diunduh.');
+          get filteredAttendanceLogs() {
+            let logs = this.attendanceLogs;
+            if (this.attendanceFilterDate) {
+              logs = logs.filter(l => l.date === this.attendanceFilterDate);
+            }
+            return logs;
           },
 
-          exportEmployeesExcel() {
-            const worksheet = XLSX.utils.json_to_sheet(this.employees.map(e => ({
-              'NIK': e.nik,
-              'Nama Lengkap': e.name,
-              'Departemen': e.department,
-              'Jabatan': e.position
-            })));
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Data Karyawan");
-            XLSX.writeFile(workbook, 'Data_Karyawan.xlsx');
-            this.showToast('Export Berhasil', 'Data karyawan berhasil diexport ke Excel.');
+          get uniqueDepartments() {
+            const depts = this.employees.map(e => e.department);
+            return [...new Set(depts)].filter(Boolean);
           },
 
-          downloadExcelTemplate() {
-            const templateData = [
-              { NIK: 'EMP005', 'Nama Lengkap': 'Nama Contoh', Departemen: 'IT', Jabatan: 'Staff' }
-            ];
-            const worksheet = XLSX.utils.json_to_sheet(templateData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Template Karyawan");
-            XLSX.writeFile(workbook, 'Template_Import_Karyawan.xlsx');
-            this.showToast('Template Diunduh', 'Template Excel import karyawan berhasil diunduh.');
-          },
+          get filteredEmployees() {
+            let list = this.employees;
+            const search = (this.employeeFilter.search || '').toLowerCase();
+            const dept = this.employeeFilter.department;
 
-          importExcelData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                const json = XLSX.utils.sheet_to_json(worksheet);
-
-                let addedCount = 0;
-                json.forEach(row => {
-                  const nik = String(row['NIK'] || '').trim();
-                  const name = String(row['Nama Lengkap'] || row['Nama'] || '').trim();
-                  const department = String(row['Departemen'] || '').trim();
-                  const position = String(row['Jabatan'] || '').trim();
-
-                  if (nik && name) {
-                    const existing = this.employees.find(emp => emp.nik === nik);
-                    if (!existing) {
-                      this.employees.push({ nik, name, department, position, photo: '' });
-                      addedCount++;
-                    }
-                  }
-                });
-
-                this.saveToLocalStorage();
-                this.showToast('Import Berhasil', `${addedCount} data karyawan berhasil diimpor dari Excel.`);
-              } catch (err) {
-                this.showToast('Gagal Import', 'Format file Excel tidak valid.', 'error');
-              }
-            };
-            reader.readAsArrayBuffer(file);
-            event.target.value = '';
+            if (search) {
+              list = list.filter(e => 
+                e.name.toLowerCase().includes(search) || 
+                e.nik.toLowerCase().includes(search) || 
+                e.position.toLowerCase().includes(search)
+              );
+            }
+            if (dept) {
+              list = list.filter(e => e.department === dept);
+            }
+            return list;
           }
         };
       }
